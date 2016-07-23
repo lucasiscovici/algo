@@ -6,6 +6,7 @@
     * @version  1.0
     * @author   S&eacute;bastien Lao&ucirc;t (slaout@linux62.org)
     */
+  include "usefull.php";
   class TMDB
   {
     // variables
@@ -113,28 +114,73 @@
     return $result;
   }
    public function info_credits($type,$value){
-      return $GLOBALS["TMDB"]->info($type,$value["tmdb_id"],"credits");
+     if (Type($value) == 'array'){
+      $value=$value["tmdb_id"];
+    }
+      return $GLOBALS["TMDB"]->info($type,$value,"credits");
 
  }
      public function people_crew($type,$value){
+       if (Type($value) == 'array'){
+      $value=$value["tmdb_id"];
+    }
       return $GLOBALS["TMDB"]->info($type,$value,"movie_credits")->crew;
 
  }
     public function info_cast($type,$value){
-      return $GLOBALS["TMDB"]->info($type,$value["tmdb_id"],"credits")->cast;
+       if (Type($value) == 'array'){
+      $value=$value["tmdb_id"];
+    }
+      return $GLOBALS["TMDB"]->info($type,$value,"credits")->cast;
 
  }
-  public function info_genres($type,$value){
-      return $GLOBALS["TMDB"]->info($type,$value["tmdb_id"])->genres;
+ public function info_images($type,$value){
+  // print_r($value);
+      return $GLOBALS["TMDB"]->info($type,$value,"images");
+
+ }
+ public function info_posters($type,$value){
+  $images=$GLOBALS["TMDB"]->info_images($type,$value);
+      return $images->posters;
+
+ }
+  public function info_genres($type,$value=0,$info=0){
+    if (Type($value) == 'array'){
+      $value=$value["tmdb_id"];
+    }
+    // print_r("\n".$info." ".$value."\n");
+
+    if ($info==0 && $value != -1) {
+// print_r("la");
+      return $GLOBALS["TMDB"]->info($type,$value)->genres;
+    }else{
+      return $type->genres;
+
+    }
 
  }
  
   public function search($type, $params, $expand = false) {
     $results = array();
-    print_r($params);
+    // print_r($params);
     $response = $this->send_request('search/' . $type, $params);
     
     return $response;
+  }
+  function info_title($info){
+    return  $info->title;
+  }
+  function info_id($info){
+    return  $info->id;
+  }
+  function info_href($id){
+    global $type;
+    $info=$GLOBALS["TMDB"]->info_posters($type,$id);
+    // print_r($info);
+    $url="http://image.tmdb.org/t/p/w780";
+    $ij=$info[0]->file_path;
+    $url=$url.$ij;
+    return $url;
   }
  function params_merge($params) {
     $defaults = $defaults = array(
@@ -155,6 +201,7 @@
     }
     return $result;
   }
+
 
     /** Query the database.
       * @param $query The query.

@@ -20,7 +20,7 @@ function search_query($name)
 {
 	return search(array("query"=>$name)); 
 }
-function eraklion($tb,$v,$l,$vs){
+function eraklion($tb,$v,$l,$vs,$al){
 $sqls="SELECT `product_id`";
 $sqls=$sqls." FROM ".$tb."";
 $sqls=$sqls." WHERE ".$v."";
@@ -30,6 +30,12 @@ $sqls=$sqls." WHERE ".$v."";
 			$sql="INSERT INTO ".$tb."($l) VALUES (".$vs.")";
 		res($sql);
 		$last=last();
+		$titre=$al->title;
+		$affiche=$al->poster_path;
+		$sf="UPDATE `products` SET `titre`='".$titre."',`affiche`='".$affiche."' WHERE `product_id`={$last}";
+				res($sf);
+				// print_r($sf);
+
 		} catch (Exception $e) {
 			
 		}
@@ -43,10 +49,11 @@ $sqls=$sqls." WHERE ".$v."";
 
 function save($num){
 	global $user;
-	$val=$GLOBALS["DB"]->escape($num);
+	$val=$GLOBALS["DB"]->escape($num->id);
 	$tb="`products`";
 	$v="tmdb_id=".$val."";
-	$last=eraklion($tb,$GLOBALS["DB"]->escape($v),"tmdb_id",$val);
+	$last=eraklion($tb,$GLOBALS["DB"]->escape($v),"tmdb_id",$val,$num);
+
 	try {
 $sql2="INSERT INTO `usersproducts`(user_id,product_id,type) VALUES (".$user.",".$last.", 1)";
 
@@ -67,7 +74,7 @@ $sql2="INSERT INTO `usersproducts`(user_id,product_id,type) VALUES (".$user.",".
 function save_begin($d){
 	foreach ($d as $key => $value) {
 		$f = search_query($value);
-		$obj = $f->data->results[0]->id;
+		$obj = $f->data->results[0];
 		save($obj);
 	}
 
@@ -86,6 +93,20 @@ function find($list,$field,$text,$n="name"){
 		if ($value->job==$text) {
 			
 			array_push($d,$value->$n); 
+		}
+
+	}
+	return $d;
+}
+function findo($list,$text="name"){
+	// print_r($list);
+	$d=array();
+	foreach ($list as $key => $value) {
+				// print_r($key."\n");
+	
+		if ($key==$text) {
+			
+			array_push($d,$value); 
 		}
 
 	}
@@ -129,13 +150,21 @@ function reals($user){
 	$reals_f=add_list2_in_array($reals,[]);
 	return $reals_f;
 }
+function reals_name($value){
+	global $type;
+			// print_r($type." ".$value);
+
+		$inf=$GLOBALS["TMDB"]->info_credits($type,$value);
+		$sk=find($inf->crew,"job","Director","name");
+	return $sk;
+}
 function genres_list($list){
 		global $type;
 
 	$genres=array();
 	foreach ($list as $key => $value) {
 		$inf=$GLOBALS["TMDB"]->info_genres($type,$value);
-$genres=add_list_in_array($inf,$genres);
+$genres=add_list_in_array($inf,$genres,"id");
 	}
 
 	return $genres;
@@ -147,13 +176,19 @@ function genres($user){
 
 	return genres_list($tmdb);
 }
+function genres_name($value){
+	global $type;
+	$inf=$GLOBALS["TMDB"]->info_genres($type,$value);
+		$sk=findo($inf);
+	return $sk;
+}
 function cast_list($list){
 		global $type;
 
 	$genres=array();
 	foreach ($list as $key => $value) {
 		$inf=$GLOBALS["TMDB"]->info_cast($type,$value);
-$genres=add_list_in_array($inf,$genres);
+$genres=add_list_in_array($inf,$genres,"id");
 	}
 	return $genres;
 }
@@ -179,23 +214,59 @@ foreach ($lo as $key => $value) {
 }
 return $l;
 }
+
 function real_film($id){
-	print_r($id);
+	// print_r($id);
 		$genres=array();
 
 	$inf=$GLOBALS["TMDB"]->people_crew("person",$id);
 	$sk=find($inf,"job","Director","id");
 	$sk=tmdb_mo($sk);
 	// print_r($sk);
-	$sd=reals_list($sk);
-	print_r($sd);
-		$sdd=genres_list($sk);
-			print_r($sdd);
+	// $sd=reals_list($sk);
+	// print_r($sd);
+	// 	$sdd=genres_list($sk);
+	// 		print_r($sdd);
 
-		$sddd=cast_list($sk);
-			print_r($sddd);
-
+	// 	$sddd=cast_list($sk);
+	// 		print_r($sddd);
+return $sk;
 	// print_r($sk);
+}
+function title_bd(){
+
+}
+function up_href($l){
+		$url="http://image.tmdb.org/t/p/w780";
+
+	foreach ($l as $key => $value) {
+		$l[$key]["href"]=$url.$value["href"];
+	}
+	return $l;
+}
+function video_url($l){
+			$inf=$GLOBALS["TMDB"]->people_crew("person",$id);
+
+	return $l;
+}
+function movies($user){
+	global $type;
+	$tmdb=getAll("SELECT `titre` as 'title',`product_id` as 'id',`affiche` as 'href' FROM usersproducts up NATURAL JOIN products WHERE up.user_id =".$user." ");
+	$listo=$tmdb;
+	$listo=up_href($listo);
+	// print_r($listo);
+
+	// foreach ($tmdb as $key => $value) {
+	// 	// $info=$GLOBALS["TMDB"]->info($type,$value["tmdb_id"]);
+	// 		$list=array();
+
+		
+	// 	$list["title"]=$tmdb["titre"];
+	// 	$list["id"]=$tmdb["id"];
+	// 	$list["href"]=;
+	// 	$listo[]=$list;
+	// }
+	return $listo;
 }
 
 ?>

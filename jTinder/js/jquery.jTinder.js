@@ -129,29 +129,37 @@
 						posY = deltaY + lastPosY;
 
 						panes.eq(current_pane).css("transform", "translate(" + posX + "px," + posY + "px) rotate(" + (percent / 2) + "deg)");
-if (posY <=0){ 
+ 
 						var opa = (Math.abs(deltaX) / $that.settings.threshold) / 100 + 0.2;
-						if(opa > 1.0) {
-							opa = 1.0;
+												var opa2 = (Math.abs(deltaY) / $that.settings.threshold) / 100 + 0.2;
+
+						if(opa > 1.0 || opa2 > 1.0) {
+							opa = 1.0; 
+							opa2= 1.0;
+
 						}
 												
+if (posY>=50){
+	console.log(opa2);
+							panes.eq(current_pane).find($that.settings.seenSelector).css('opacity', opa2);
+							panes.eq(current_pane).find($that.settings.dislikeSelector).css('opacity', 0);
+														panes.eq(current_pane).find($that.settings.likeSelector).css('opacity', 0);
+			
 
+					}else{
 						if (posX >= 0) {
 							panes.eq(current_pane).find($that.settings.likeSelector).css('opacity', opa);
+																	panes.eq(current_pane).find($that.settings.seenSelector).css('opacity', 0);
+
 							panes.eq(current_pane).find($that.settings.dislikeSelector).css('opacity', 0);
 						} else if (posX < 0) {
+										panes.eq(current_pane).find($that.settings.seenSelector).css('opacity', 0);
 
 							panes.eq(current_pane).find($that.settings.dislikeSelector).css('opacity', opa);
 							panes.eq(current_pane).find($that.settings.likeSelector).css('opacity', 0);
 						}
-					}else{
-													opa = 1.0;
-
-										panes.eq(current_pane).find($that.settings.seenSelector).css('opacity', opa);
-							panes.eq(current_pane).find($that.settings.dislikeSelector).css('opacity', 0);
-														panes.eq(current_pane).find($that.settings.likeSelector).css('opacity', 0);
-
 					}
+					
 					}
 					break;
 				case 'mouseup':
@@ -165,8 +173,17 @@ if (posY <=0){
 					posX = deltaX + lastPosX;
 					posY = deltaY + lastPosY;
 					var opa = Math.abs((Math.abs(deltaX) / $that.settings.threshold) / 100 + 0.2);
+					var opa2 = Math.abs((Math.abs(deltaY) / $that.settings.threshold) / 100 + 0.2);
 
-												if (posY <=0){ 
+if (opa >=1 || opa2 >=1){
+					if (posY >=100){ 
+	panes.eq(current_pane).animate({"transform": "translateY(" + (posY + pane_width + 100) + "px) "}, $that.settings.animationSpeed, function () {
+								if($that.settings.onSeen) {
+									$that.settings.onSeen(panes.eq(current_pane));
+								}
+								$that.next();
+							});
+					}else{
 						if (posX > 0) {
 							panes.eq(current_pane).animate({"transform": "translate(" + (pane_width) + "px," + (posY + pane_width) + "px) rotate(60deg)"}, $that.settings.animationSpeed, function () {
 								if($that.settings.onLike) {
@@ -182,23 +199,24 @@ if (posY <=0){
 								$that.next();
 							});
 						}
-					}else{
-						panes.eq(current_pane).animate({"transform": "translateY(" + (posY + pane_width + 100) + "px) "}, $that.settings.animationSpeed, function () {
-								if($that.settings.onSeen) {
-									$that.settings.onSeen(panes.eq(current_pane));
-								}
-								$that.next();
-							});
 					}
-					// } else {
-					// 	lastPosX = 0;
-					// 	lastPosY = 0;
-					// 	panes.eq(current_pane).animate({"transform": "translate(0px,0px) rotate(0deg)"}, $that.settings.animationRevertSpeed);
-					// 	panes.eq(current_pane).find($that.settings.likeSelector).animate({"opacity": 0}, $that.settings.animationRevertSpeed);
-					// 	panes.eq(current_pane).find($that.settings.dislikeSelector).animate({"opacity": 0}, $that.settings.animationRevertSpeed);
-					// 						panes.eq(current_pane).find($that.settings.seenSelector).animate({"opacity": 0}, $that.settings.animationRevertSpeed);
-
+					// }else{
+						// panes.eq(current_pane).animate({"transform": "translateY(" + (posY + pane_width + 100) + "px) "}, $that.settings.animationSpeed, function () {
+						// 		if($that.settings.onSeen) {
+						// 			$that.settings.onSeen(panes.eq(current_pane));
+						// 		}
+						// 		$that.next();
+						// 	});
 					// }
+					} else {
+						lastPosX = 0;
+						lastPosY = 0;
+						panes.eq(current_pane).animate({"transform": "translate(0px,0px) rotate(0deg)"}, $that.settings.animationRevertSpeed);
+						panes.eq(current_pane).find($that.settings.likeSelector).animate({"opacity": 0}, $that.settings.animationRevertSpeed);
+						panes.eq(current_pane).find($that.settings.dislikeSelector).animate({"opacity": 0}, $that.settings.animationRevertSpeed);
+						panes.eq(current_pane).find($that.settings.seenSelector).animate({"opacity": 0}, $that.settings.animationRevertSpeed);
+
+					}
 					break;
 			}
 		}

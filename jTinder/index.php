@@ -1,3 +1,13 @@
+<?php
+$user=1;
+$type="movie";
+
+require "base.php";
+
+$movie=movie_pref($user);
+
+
+?>
 <!DOCTYPE html>
 <html>
 <head>
@@ -13,47 +23,31 @@
         <!-- start jtinder container -->
         <div id="tinderslide">
             <ul>
-                <li class="pane1">
-                    <div class="img"></div>
-                    <div>Miami Beach</div>
+            <? foreach ($movie as $key => $value) {
+                ?>
+            <li class="pane" id="<?php echo $value['id'] ?>" rate='<?php echo $value["rate"] ?>'>
+                    <div class="img"><img width="100%" height="100%" src="<?php echo $value["href"]?>"/></div>
+                    <div><?php echo $value["title"]?></div><div> Réal:
+                    <?
+                    
+                     foreach ($value["reals"] as $key2 => $value2) {
+                        ?>
+                        <span><?php echo $value2 ?><span>
+                     <?}?>
+                     </div>
+                                        
+
                     <div class="like"></div>
                     <div class="dislike"></div>
+                                        <div class="play" id="<?php echo $value['video']?>"></div>
+
                                                             <div class="seen"></div>
 
                 </li>
-                <li class="pane2">
-                    <div class="img"></div>
-                    <div>San Francisco</div>
-                    <div class="like"></div>
-                    <div class="dislike"></div>
-                                                            <div class="seen"></div>
-
-                </li>
-                <li class="pane3">
-                    <div class="img"></div>
-                    <div>Chicago</div>
-                    <div class="like"></div>
-                    <div class="dislike"></div>
-                                                            <div class="seen"></div>
-
-                </li>
-                <li class="pane4">
-                    <div class="img"></div>
-                    <div>New York</div>
-                    <div class="like"></div>
-                    <div class="dislike"></div>
-                                                            <div class="seen"></div>
-
-                </li>
-                <li class="pane5">
-                    <div class="img"></div>
-                    <div>Beach</div>
-                    <div class="like"></div>
-                                                            <div class="seen"></div>
-
-                    <div class="dislike"></div>
-
-                </li>
+            <?
+            }
+                ?>
+               
             </ul>
         </div>
         <!-- end jtinder container -->
