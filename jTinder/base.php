@@ -51,9 +51,29 @@ function genre_pt($id,$note,$gl){
 		}
 return $note+$pt;
 }
+function cast_pt($id,$note,$gl){
+global $type;
+	$pt=0;
+		$inf=$GLOBALS["TMDB"]->info_cast($type,$id);
+		// print_r($inf);
+		foreach ($inf as $key => $value) {
+			// print_r($value);
+
+			$pt+=(array_key_exists($value->id, $gl))?$gl[$value->id]:0;
+		}
+return $note+$pt;
+}
 
 $pt_film=array();
-
+function dod($a,$b){
+	$result = array();
+foreach($a as $arr){
+   if(!in_array($arr, $b)){
+      $result[] = $arr;
+   }
+}
+return $result;
+}
 function pref($us){
 	$d = array(
 		"reals",
@@ -76,6 +96,8 @@ foreach ($gl["reals"] as $key => $value) {
 // 	# code...
 
 	$dgs=real_film($key);
+	$dgs=dod($dgs,get_tmdb2($user));
+	// print_r(get_tmdb2($user));
 	foreach ($dgs as $key2 => $value2) {
 // if ($count == 0) {
 
@@ -86,6 +108,8 @@ foreach ($gl["reals"] as $key => $value) {
 					// print_r($dg);
 
 		$dg[$value2["tmdb_id"]]=genre_pt($value2,$dg[$value2["tmdb_id"]],$gl["genres"]);
+				$dg[$value2["tmdb_id"]]=cast_pt($value2,$dg[$value2["tmdb_id"]],$gl["cast"]);
+
 // }else{
 // 	break;
 // 	}
@@ -99,7 +123,10 @@ function movie_pref($e){
 $movie=pref($e);
 // print_r($movie);
 $res=array();
+$count=0;
 foreach ($movie as $key => $value) {
+	if ($count<10){
+		$count++;
 	$tmdb=getAll("SELECT `titre` as 'title',`product_id` as 'id',`affiche` as 'href' FROM products WHERE product_id =".$key." ");	
 	if (count($tmdb)==0){
 		$val=$key;
@@ -129,6 +156,9 @@ $sd["genres"]=genres_name($tmdb["id"]);
 
 }
 	$res[]=$sd;
+}else{
+	break;
+}
 }
 $res=up_href($res);
 

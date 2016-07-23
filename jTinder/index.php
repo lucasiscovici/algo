@@ -23,29 +23,31 @@ $movie=movie_pref($user);
         <!-- start jtinder container -->
         <div id="tinderslide">
             <ul>
-            <? foreach ($movie as $key => $value) {
+            <? $m=20; 
+             foreach ($movie as $key => $value) {
                 ?>
-            <li class="pane" id="<?php echo $value['id'] ?>" rate='<?php echo $value["rate"] ?>'>
-                    <div class="img"><img width="100%" height="100%" src="<?php echo $value["href"]?>"/></div>
-                    <div><?php echo $value["title"]?></div><div> Réal:
+            <li class="pane" style="z-index:<?php echo $m ?>;" id="<?php echo $value['id'] ?>" rate='<?php echo $value["rate"] ?>'>
+                    <div class="img" style="z-index:<?php echo $m ?>;"><img width="100%" style="z-index:<?php echo $m ?>;" height="100%" src="<?php echo $value["href"]?>"/></div>
+                    <div class="tv" style="z-index:<?php echo $m ?>;" ><?php echo $value["title"]?></div><div class="tv" style="z-index:<?php echo $m ?>;"> Réal:
                     <?
-                    
+                    $m--;
                      foreach ($value["reals"] as $key2 => $value2) {
                         ?>
-                        <span><?php echo $value2 ?><span>
-                     <?}?>
-                     </div>
-                                        
+                        <span class="tv" style="z-index:<?php echo $m ?>;"><?php echo $value2 ?></span>
+                     <?}?></br>
+                            <span class="tv" style="z-index:<?php echo $m ?>;"> Note:<?php echo $value["rate"] ?></span>                     </div>
+             
 
-                    <div class="like"></div>
-                    <div class="dislike"></div>
-                                        <div class="play" id="<?php echo $value['video']?>"></div>
+                    <div class="like" style="z-index:<?php echo $m ?>;"></div>
+                    <div class="dislike" style="z-index:<?php echo $m ?>;"></div>
+                                        <div class="play" style="z-index:<?php echo $m ?>;" id="<?php echo $value['video']?>"></div>
 
-                                                            <div class="seen"></div>
+                                                            <div class="seen" style="z-index:<?php echo $m ?>;"></div>
 
                 </li>
             <?
-            }
+
+            } 
                 ?>
                
             </ul>

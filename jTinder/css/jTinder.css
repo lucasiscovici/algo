@@ -108,7 +108,11 @@ body {
     -webkit-backface-visibility: hidden;
     backface-visibility: hidden;
 }
-
+.tv{
+font-size: 15px;}
+.pane{
+    height: auto !important;
+}
 #tinderslide .dislike {
     right: 45px;
     left: auto;

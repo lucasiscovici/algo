@@ -175,15 +175,14 @@ if (posY>=50){
 					var opa = Math.abs((Math.abs(deltaX) / $that.settings.threshold) / 100 + 0.2);
 					var opa2 = Math.abs((Math.abs(deltaY) / $that.settings.threshold) / 100 + 0.2);
 
-if (opa >=1 || opa2 >=1){
-					if (posY >=100){ 
+					if (posY >=100 && opa2 >=1){ 
 	panes.eq(current_pane).animate({"transform": "translateY(" + (posY + pane_width + 100) + "px) "}, $that.settings.animationSpeed, function () {
 								if($that.settings.onSeen) {
 									$that.settings.onSeen(panes.eq(current_pane));
 								}
 								$that.next();
 							});
-					}else{
+					}else if (opa >=1){
 						if (posX > 0) {
 							panes.eq(current_pane).animate({"transform": "translate(" + (pane_width) + "px," + (posY + pane_width) + "px) rotate(60deg)"}, $that.settings.animationSpeed, function () {
 								if($that.settings.onLike) {
@@ -199,7 +198,8 @@ if (opa >=1 || opa2 >=1){
 								$that.next();
 							});
 						}
-					}
+					
+					
 					// }else{
 						// panes.eq(current_pane).animate({"transform": "translateY(" + (posY + pane_width + 100) + "px) "}, $that.settings.animationSpeed, function () {
 						// 		if($that.settings.onSeen) {

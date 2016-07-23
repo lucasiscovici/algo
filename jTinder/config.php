@@ -84,6 +84,18 @@ function get_tmdb($user){
 $r=getAll($s);
 return $r;
 }
+function bb($f){
+	$f=array();
+	foreach ($f as $key => $value) {
+		$f[]=$value["tmdb_id"];
+	}
+	return $f;
+}
+function get_tmdb2($user){
+	$s="SELECT `tmdb_id` FROM `products` NATURAL JOIN `usersproducts` WHERE `user_id`=".$user."";
+$r=getAll($s);
+return bb($r);
+}
 function find($list,$field,$text,$n="name"){
 	// print_r($list);
 	$d=array();
