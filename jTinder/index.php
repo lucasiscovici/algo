@@ -23,14 +23,14 @@ $movie=movie_pref($user);
         <!-- start jtinder container -->
         <div id="tinderslide">
             <ul>
-            <? $m=20; 
+            <? $m=5; 
              foreach ($movie as $key => $value) {
                 ?>
             <li class="pane" style="z-index:<?php echo $m ?>;" id="<?php echo $value['id'] ?>" rate='<?php echo $value["rate"] ?>'>
                     <div class="img" style="z-index:<?php echo $m ?>;"><img width="100%" style="z-index:<?php echo $m ?>;" height="100%" src="<?php echo $value["href"]?>"/></div>
                     <div class="tv" style="z-index:<?php echo $m ?>;" ><?php echo $value["title"]?></div><div class="tv" style="z-index:<?php echo $m ?>;"> Réal:
                     <?
-                    $m--;
+                    
                      foreach ($value["reals"] as $key2 => $value2) {
                         ?>
                         <span class="tv" style="z-index:<?php echo $m ?>;"><?php echo $value2 ?></span>
@@ -46,7 +46,7 @@ $movie=movie_pref($user);
 
                 </li>
             <?
-
+$m++;
             } 
                 ?>
                

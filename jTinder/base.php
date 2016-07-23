@@ -66,12 +66,15 @@ return $note+$pt;
 
 $pt_film=array();
 function dod($a,$b){
+	print_r($a);
+	print_r($b);
 	$result = array();
 foreach($a as $arr){
    if(!in_array($arr, $b)){
       $result[] = $arr;
    }
 }
+$result=array_reverse($result);
 return $result;
 }
 function pref($us){
@@ -99,9 +102,9 @@ foreach ($gl["reals"] as $key => $value) {
 	$dgs=dod($dgs,get_tmdb2($user));
 	// print_r(get_tmdb2($user));
 	foreach ($dgs as $key2 => $value2) {
-// if ($count == 0) {
+if ($count <= 3) {
 
-	// $count++;
+	$count++;
 				// print_r($value2["tmdb_id"]);
 
 		$dg[$value2["tmdb_id"]]=$value;
@@ -110,9 +113,9 @@ foreach ($gl["reals"] as $key => $value) {
 		$dg[$value2["tmdb_id"]]=genre_pt($value2,$dg[$value2["tmdb_id"]],$gl["genres"]);
 				$dg[$value2["tmdb_id"]]=cast_pt($value2,$dg[$value2["tmdb_id"]],$gl["cast"]);
 
-// }else{
-// 	break;
-// 	}
+}else{
+	break;
+	}
 }
 }
 arsort($dg);
