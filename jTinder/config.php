@@ -85,11 +85,11 @@ $r=getAll($s);
 return $r;
 }
 function bb($f){
-	$f=array();
+	$fd=array();
 	foreach ($f as $key => $value) {
-		$f[]=$value["tmdb_id"];
+		$fd[]=$value["tmdb_id"];
 	}
-	return $f;
+	return $fd;
 }
 function get_tmdb2($user){
 	$s="SELECT `tmdb_id` FROM `products` NATURAL JOIN `usersproducts` WHERE `user_id`=".$user."";
@@ -151,7 +151,14 @@ $reals=array();
 
 		$inf=$GLOBALS["TMDB"]->info_credits($type,$value);
 		$sk=find($inf->crew,"job","Director","id");
-array_push($reals, $sk[0]);
+
+for ($i=0; $i < count($sk) ; $i++) { 
+				# code...
+			# code...
+		
+array_push($reals, $sk[$i]);
+}			
+
 	}
 	return $reals;
 }
@@ -245,6 +252,25 @@ function real_film($id){
 return $sk;
 	// print_r($sk);
 }
+function cast_film($id){
+	// print_r($id);
+		$genres=array();
+
+	$sk=$GLOBALS["TMDB"]->people_cast("person",$id);
+	// print_r($GLOBALS["TMDB"]->info("person",$id)->name);
+	$sk=findo($sk[0],"id");
+	$sk=tmdb_mo($sk);
+	// print_r($sk);
+	// $sd=reals_list($sk);
+	// print_r($sd);
+	// 	$sdd=genres_list($sk);
+	// 		print_r($sdd);
+
+	// 	$sddd=cast_list($sk);
+	// 		print_r($sddd);
+return $sk;
+	// print_r($sk);
+}
 function title_bd(){
 
 }
@@ -257,9 +283,16 @@ function up_href($l){
 	return $l;
 }
 function video_url($l){
-			$inf=$GLOBALS["TMDB"]->people_crew("person",$id);
+$in=$GLOBALS["TMDB"]->info("movie",$l,"videos");
 
+if (count($in)==0 || count($in->results)==0) {
+	return "fail";
+}else{
+	$val=$in->results[0];
+	return $val->key;
+}
 	return $l;
+
 }
 function movies($user){
 	global $type;

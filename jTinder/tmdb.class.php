@@ -98,7 +98,20 @@
     return $response;
   
  }
+function find($list,$field,$text,$n="name"){
+  // print_r($list);
+  $d=array();
+  foreach ($list as $key => $value) {
+        // print_r($key."\n");
+  
+    if ($value->job==$text) {
+      
+      array_push($d,$value->$n); 
+    }
 
+  }
+  return $d;
+}
  public function info($type, $id, $method = false, $params = array()) {
     $result = array();
     if ($method) {
@@ -126,12 +139,26 @@
     }
       return $GLOBALS["TMDB"]->info($type,$value,"movie_credits")->crew;
 
+ } 
+ public function people_cast($type,$value){
+       if (Type($value) == 'array'){
+      $value=$value["tmdb_id"];
+    }
+      return $GLOBALS["TMDB"]->info($type,$value,"movie_credits")->cast;
+
  }
     public function info_cast($type,$value){
        if (Type($value) == 'array'){
       $value=$value["tmdb_id"];
     }
       return $GLOBALS["TMDB"]->info($type,$value,"credits")->cast;
+
+ }
+ public function info_real($type,$value){
+       if (Type($value) == 'array'){
+      $value=$value["tmdb_id"];
+    }
+      return $GLOBALS["TMDB"]->people_crew($type,$value);
 
  }
  public function info_images($type,$value){

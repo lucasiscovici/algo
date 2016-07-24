@@ -6,6 +6,7 @@ $("#tinderslide").jTinder({
     onDislike: function (item) {
 	    // set the status text
         $('#status').html('Dislike image ' + (item.index()+1));
+
     },
 	// like callback
     onLike: function (item) {
@@ -15,6 +16,10 @@ $("#tinderslide").jTinder({
     onSeen: function (item) {
 	    // set the status text
         $('#status').html('Seen image ' + (item.index()+1));
+        $("#modal1").modal("show");
+        $("#modal1").attr("tmdb_id",item.attr("id"));
+        $("#modal1").attr("user",item.attr("user"));
+
     },
 	animationRevertSpeed: 200,
 	animationSpeed: 400,
@@ -25,6 +30,18 @@ $("#tinderslide").jTinder({
 
 });
 
+$(".play").click(function(){
+id=$(this).attr("id");
+src="https://www.youtube.com/embed/"+id;
+window.open(src);
+});
+$(".sv").click(function(){
+id=$("#modal1").attr("tmdb_id");
+user=$("#modal1").attr("user");
+rate=$("#rateit5").rateit("value");
+console.log("value "+rate);
+
+	});
 /**
  * Set button action to trigger jTinder like & dislike.
  */

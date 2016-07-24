@@ -108,6 +108,21 @@ body {
     -webkit-backface-visibility: hidden;
     backface-visibility: hidden;
 }
+.video{
+    position: absolute;
+    top:20%;
+    left: 25%;
+    width: 100%;
+        z-index: 100;
+
+    height:100%;
+    opacity: 1;
+}
+.pom{
+    float:right;
+    width: 50px;
+    height:100%;
+}
 .tv{
 font-size: 15px;}
 .pane{
@@ -121,8 +136,8 @@ font-size: 15px;}
 #tinderslide .play {
     cursor: pointer;
         opacity: 1 !important;
-width: 100%;
-height: 100%;
+    width: 142px;
+    height: 142px;
 left:26%;
 top: 26%;
     right: 45px;
