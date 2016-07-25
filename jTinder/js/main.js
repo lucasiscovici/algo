@@ -11,7 +11,8 @@ console.log(nb_rest);
     onDislike: function (item) {
 	    // set the status text
         $('#status').html('Dislike image ' + (item.index()+1));
-        $.post( {
+        $.ajax( {
+		method:"POST",
           url: "swipe.php",
           data: {
           	role: 3,
@@ -33,7 +34,8 @@ console.log("ton id est: "+data);
     onLike: function (item) {
 	    // set the status text
         $('#status').html('Like image ' + (item.index()+1));
-        $.post( {
+        $.ajax( {
+		method:"POST",
           url: "swipe.php",
           data: {
           	role: 2,
@@ -77,7 +79,8 @@ $(".sv").click(function(){
 id=$("#modal1").attr("tmdb_id");
 user=$("#modal1").attr("user");
 rate=$("#rateit5").rateit("value");
-$.post( {
+$.ajax( {
+		method:"POST",
           url: "swipe.php",
           data: {
           	role: 1,

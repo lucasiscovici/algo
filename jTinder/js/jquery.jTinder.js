@@ -76,8 +76,8 @@
 				if($that.settings.onDislike) {
 
 					$that.settings.onDislike(panes.eq(current_pane));
+					nb_r+=1;
 								$that.settings.onSwipe(panes.eq(current_pane),nb,nb-nb_r);
-								nb_r+=1;
 				}
 				$that.next();
 			});
@@ -90,8 +90,9 @@
 				if($that.settings.onLike) {
 
 					$that.settings.onLike(panes.eq(current_pane));
+					nb_r+=1;
 								$that.settings.onSwipe(panes.eq(current_pane),nb,nb-nb_r);
-								nb_r+=1;
+								
 				}
 				$that.next();
 			});
@@ -103,8 +104,8 @@
 				if($that.settings.onSeen) {
 
 					$that.settings.onSeen(panes.eq(current_pane));
-								$that.settings.onSwipe(panes.eq(current_pane),nb,nb-nb_r);
 								nb_r+=1;
+								$that.settings.onSwipe(panes.eq(current_pane),nb,nb-nb_r);
 				}
 				$that.next();
 			});
@@ -190,8 +191,8 @@ if (posY>=50){
 	panes.eq(current_pane).animate({"transform": "translateY(" + (posY + pane_width + 100) + "px) "}, $that.settings.animationSpeed, function () {
 								if($that.settings.onSeen) {
 									$that.settings.onSeen(panes.eq(current_pane));
+nb_r+=1;
 													$that.settings.onSwipe(panes.eq(current_pane),nb,nb-nb_r);
-								nb_r+=1;
 								}
 								$that.next();
 							});
@@ -200,8 +201,8 @@ if (posY>=50){
 							panes.eq(current_pane).animate({"transform": "translate(" + (pane_width) + "px," + (posY + pane_width) + "px) rotate(60deg)"}, $that.settings.animationSpeed, function () {
 								if($that.settings.onLike) {
 									$that.settings.onLike(panes.eq(current_pane));
+nb_r+=1;
 												$that.settings.onSwipe(panes.eq(current_pane),nb,nb-nb_r);
-								nb_r+=1;
 								}
 								$that.next();
 							});
@@ -209,8 +210,8 @@ if (posY>=50){
 							panes.eq(current_pane).animate({"transform": "translate(-" + (pane_width) + "px," + (posY + pane_width) + "px) rotate(-60deg)"}, $that.settings.animationSpeed, function () {
 								if($that.settings.onDislike) {
 									$that.settings.onDislike(panes.eq(current_pane));
+nb_r+=1;
 													$that.settings.onSwipe(panes.eq(current_pane),nb,nb-nb_r);
-								nb_r+=1;
 								}
 								$that.next();
 							});
