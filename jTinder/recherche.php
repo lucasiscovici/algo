@@ -146,8 +146,10 @@ $.post( {
           	// data=$.parseJSON(data);
             // Handle 'no match' indicated by [ "" ] response
              console.log(data);
+
             if (data == 1){
-            	alert("reussit");
+            	window.location.reload();
+            	console.log("reussit");
             }
           }
         } );
@@ -210,6 +212,15 @@ if (data==-1) {
 	alert("pseudo deja pris");
 }else{
 alert("ton id est: "+data);
+var theForm = $("#form");
+// Add data:
+addHidden(theForm, 'id', data);
+addHidden(theForm, 'pseudo', pseudo);
+addHidden(theForm, 'idd', "<?php echo session_id(); ?>");
+
+theForm.submit();
+
+alert("user actuel: "+data["pseudo"]);
 }
             // Handle 'no match' indicated by [ "" ] response
           }

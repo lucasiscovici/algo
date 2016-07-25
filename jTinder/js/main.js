@@ -75,9 +75,50 @@ console.log("ton id est: "+data);
 		seenSelector: '.seen'
 
 });
+$(".pane #nfo").click(function(){
+p_id=$(this).parent().attr("p_id");
+tmdb_id=$(this).parent().attr("tmdb_id");
+ann=$(this).parent().find("#ann_ann").html();
+title=$(this).parent().find("#title_title").html();
+real=$(this).parent().find("#real_1").find("#real_real").html();
+img=$(this).parent().find('.img').find("#img_img").attr("src");
+$("#modal2 #title_modal").html(title);
+$("#modal2 #ann_modal").html(ann);
+$("#modal2 #real_modal").html(real);
+$("#modal2 #img_modal").attr("src",img);
+$.ajax( {
+    method:"POST",
+          url: "info.php",
+          data: {
+            role: 1,
+            tmdb_id: tmdb_id
+              },
+          success: function( datad ) {
+            console.log(datad);
+            $('#genre_modal').html(datad);
+            }
+          });
+$.ajax( {
+    method:"POST",
+          url: "info.php",
+          data: {
+            role: 2,
+            tmdb_id: tmdb_id
+              },
+          success: function( datad ) {
+            console.log(datad);
+            $('#synop_modal').html(datad);
+            }
+          });
+video=$(this).parent().find(".play");
+if(video){
+  $("#modal2 .play").attr("v_id",video.attr('v_id'));
+}
+$("#modal2").modal('show');
 
+});
 $(".play").click(function(){
-id=$(this).attr("id");
+id=$(this).attr("v_id");
 src="https://www.youtube.com/embed/"+id;
 window.open(src);
 });
@@ -92,13 +133,14 @@ $.ajax( {
           	role: 1,
             id: id,
             note: rate
-     
+  },
           success: function( data ) {
           	$("#modal1").modal("hide");
 if (data==-1) {
 	console.log("pb swipe 1");
 }else{
 console.log("ton id est: "+data);
+
 }
             // Handle 'no match' indicated by [ "" ] response
           }

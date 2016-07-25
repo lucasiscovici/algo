@@ -7,10 +7,9 @@ $pseudo=$_SESSION["pseudo"];
 $debug=false;
 $gl=array();
 $nb=20;
-$base_num=6;
 $base_rate=5;
 $base_min=0.4;
-$min=1.0;
+$min_u=1.0;
 	$d = array( // critères de pref 
 		"reals",
 		"genres",
@@ -18,7 +17,8 @@ $min=1.0;
 		);
 $list_name=array();
 include "config.php";
-
+$base_num=get_num_up($user);
+// print_r($base_num);
 
 // $f=array(
 // 			"interstellar",
@@ -36,7 +36,9 @@ include "config.php";
 //renvoi un array de pref (real, genres,cast) (id->[frequence,rate])
 function getb($t){
 	global $user;
-		global $gl;
+	global $gl;
+	$user=$_SESSION["id"];
+	// print_r($_SESSION);
 	$tmdb=get_tmdb3($user);
 
 	foreach ($t as $key => $value) {
@@ -177,7 +179,30 @@ $i=get_tmdb2($user);
 		}
 
 	}
+foreach ($gl["genres"] as $key => $value) {
+		//parcours les pref CAST -> pour trouver des films
+		if ($value >= $base_min){
+			//on cherche les films de l'acteur uniquement si la note est > base_min
 
+
+			$dgs=genres_film($key);// film de l'acteur
+			$dgs=dod($dgs,$i); //filtre films deja connu
+			foreach ($dgs as $key2 => $value2) {
+
+				if (!(array_key_exists($value2["tmdb_id"], $dg))){
+
+
+					$dg[$value2["tmdb_id"]]=$value;
+					$dg[$value2["tmdb_id"]]=cast_pt($value2,$dg[$value2["tmdb_id"]],$gl["cast"]);// genre pt
+					
+					$dg[$value2["tmdb_id"]]=real_pt($value2,$dg[$value2["tmdb_id"]],$gl["reals"]); //real pt
+				}
+
+			}
+		}
+
+	}
+	// print_r($dg);
 	asort($dg); //tri
 	return $dg;
 }
@@ -196,50 +221,97 @@ function get_array_nb($arr,$nb){
 }
 
 //revoit une liste de films suggeré (id,rate,title,href,reals,genres,video_url) avec une liste de films suggerés (id=>note)
+function date_m($d){
+	global $type;
+	$num=$GLOBALS["TMDB"]->info($type,$d);
+
+	return $num->release_date;
+}
+function vide($d){
+
+	return ($d == null || !(isset($d)));
+}
+function p_vide($d){
+
+	return !(vide($d));
+}
 function movie_pref($e){ 
+
 	global $type; //movie
 	global $nb; //nb de films suggéré max !
-	global $min; //note minimal
+	global $min_u; //note minimal
 
+// print_r($e);
 	$movie=pref($e); // retourne une liste de films suggerés (id=>note)
 	$res=array(); //array -> resultats
 	$movie = get_array_nb($movie, $nb); // extrait les nb premiers films
 	$movie = array_filter($movie, function($k,$v) { // filtres les films ayant une note > $min
-	    return $v >= $min;
+		global $min_u;
+	    return $k >= $min_u;
 	}, ARRAY_FILTER_USE_BOTH); 
 
 	$movie=array_reverse($movie, true); //inverse la liste 
 
 	foreach ($movie as $key => $value) { //parcours la liste de films suggerés (id=>note) et retourne (id,rate,title,href,reals,genres,video_url)
-
+$sd =array();
 		$tmdb=getAll("SELECT `titre` as 'title',`product_id` as 'p_id',`affiche` as 'href' FROM products WHERE tmdb_id =".$key." ");	
 
+// print_r("\n".count($tmdb)."\n");
 		// si le film n'existe pas on cherche les infos sur tmdb sinon depuis la bd
 		if (count($tmdb)==0){
 			$val=$key;
 			$tb="`products`";
-			$v="tmdb_id=".$val."";
+			$v="tmdb_id=".$val;
+
+			// print_r("\n".$GLOBALS["TMDB"]."\n");
 			$num=$GLOBALS["TMDB"]->info($type,$val); //on cherche le film
+// print_r($num);
+			if (p_vide($num->title)) {
+				# code...
+			
 			$last=eraklion($tb,$v,"tmdb_id",$val,$num); //on eraklion le nouveau film
 
+// // 
 			$sd["id"]=$key;
-						$sd["p_id"]=$last;
+						$sd["tmdb_id"]=$key;
 
+			$sd["p_id"]=$last;
 			$sd["title"]=$num->title; 
-			$sd["href"]=$num->poster_path;
+						$sd["ann"]=$num->release_date; 
+
+			if ($num->poster_path==null || !(isset($num->poster_path))  ) {
+				$ns="fail";
+			}else{
+				$ns=$num->poster_path;
+			}
+			$sd["href"]=$ns;
 			$sd["reals"]=reals_name($key); // on cherche les reals
 			$sd["genres"]=genres_name($key); // on cherche les genres
 			$sd["video_url"]=video_url($key); // on cherche le lien de la video
 			$sd["rate"]=$value;
+						// print_r($sd);
 
+}else{
+	continue;
+}
 			
 
 		}else{
+						// print_r("expression2");
+
 			$sd=$tmdb;
+			unset($sd[0]);
+			$sd["tmdb_id"]=$key;
+			$sd["title"]=$tmdb[0]["title"];
+			$sd["p_id"]=$tmdb[0]["p_id"];
+			$sd["href"]=$tmdb[0]["href"];
 			$sd["rate"]=$value;
+			$sd["ann"]=date_m($key); 
+
 			$sd["reals"]=reals_name($key);
 			$sd["genres"]=genres_name($key);
 			$sd["video_url"]=video_url($key);
+			// print_r($sd);
 		}
 
 		$res[]=$sd;

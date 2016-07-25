@@ -1,5 +1,4 @@
 <?php 
-session_start();
 include "db.class.php";
 include "tmdb.class.php";
 function last(){
@@ -44,14 +43,18 @@ function eraklion($tb,$v,$l,$vs,$al){
 $sqls="SELECT `product_id`";
 $sqls=$sqls." FROM ".$tb."";
 $sqls=$sqls." WHERE ".$v."";
-	$d=$GLOBALS["DB"]->getOne($sqls);
+	$d=$GLOBALS["DB"]->getAll($sqls);
+	// print_r($d);
 	if (!$d || count($d)==0) {
 		try {
+			$titre=$al->title;
+		$affiche=$al->poster_path;
 			if (isset($titre) && isset($affiche)) {
 				# code...
 			
 			$sql="INSERT INTO ".$tb."($l) VALUES (".$vs.")";
 		res($sql);
+		// print_r($sql);
 		$last=last();
 		$titre=$al->title;
 		$affiche=$al->poster_path;
@@ -201,7 +204,7 @@ function save_begin($d){
 		$f = search_query($value);
 		$c=0;
 		$obj = $f->data->results[$c];
-		print_r($value." ".$obj->title);
+		// print_r($value." ".$obj->title);
 		while (strtolower($value) != strtolower($obj->title)){
 			$c+=1;
 $obj = $f->data->results[$c];
@@ -217,11 +220,16 @@ $r=getAll($s);
 return $r;
 }
 function get_tmdb3($user){
+
 	$s="SELECT `tmdb_id`,`note` FROM `products` NATURAL JOIN `usersproducts` WHERE `user_id`=".$user." AND type=1 ";
+	// print_r($s);
 $r=getAll($s);
 return $r;
 }
-
+function get_num_up($u){
+$d=getAll("SELECT count(`id`) as 'c' FROM `usersproducts` WHERE `user_id`=".$u." AND `type`=1");
+	return $d[0]['c'];
+}
 function bb($f){
 	$fd=array();
 	foreach ($f as $key => $value) {
@@ -248,6 +256,28 @@ function find($list,$field,$text,$n="name"){
 	}
 	return $d;
 }
+function find_u($list,$field,$text,$n="name"){
+	// print_r($list);
+	$d=array();
+	foreach ($list as $key => $value) {
+				// print_r($key."\n");
+	
+		if ($value->job==$text) {
+			$now=strtotime(date("Y-m-d"));
+			$df=$value->release_date;
+			$df=strtotime($df);
+			if ($df<$now) {
+				# code...
+			
+			array_push($d,$value->$n); 
+		}
+		}
+
+	}
+	return $d;
+}
+
+// strtotime
 function findoo($list,$field,$text){
 	// print_r($list);
 	$d=array();
@@ -265,7 +295,9 @@ function findoo($list,$field,$text){
 function findo($list,$text="name"){
 	// print_r($list);
 	$d=array();
-	foreach ($list as $key => $value) {
+		foreach ($list as $key1 => $value1) {
+
+	foreach ($value1 as $key => $value) {
 				// print_r($key."\n");
 	
 		if ($key==$text) {
@@ -274,9 +306,28 @@ function findo($list,$text="name"){
 		}
 
 	}
+}
 	return $d;
 }
+function findo_u($list,$text="name"){
+	// print_r($list);
+	$d=array();
+		foreach ($list as $key1 => $value1) {
 
+				// print_r($key."\n");
+	
+			$now=strtotime(date("Y-m-d"));
+			$df=$value1->release_date;
+			$df=strtotime($df);
+			if ($df<$now) {
+			array_push($d,$value1->$text);
+			} 
+		
+
+	
+}
+	return $d;
+}
 function add_in_array($j,$arr){
 	if (array_key_exists($j, $arr)) $arr[$j]=$arr[$j]+1;
 	else $arr[$j]=1;
@@ -324,19 +375,25 @@ function add_list2_in_array2($list,$arr){
 }
 function reals_list($list){
 		global $type;
-
+// print_r($list);
 $reals=array();
 	foreach ($list as $key => $value) {
-
 		$inf=$GLOBALS["TMDB"]->info_credits($type,$value);
-		$sk=findoo($inf->crew,"job","Director");
+				// print_r($inf);
 
+		$sk=findoo($inf->crew,"job","Director");
 for ($i=0; $i < count($sk) ; $i++) { 
 				# code...
 			# code...
-		
-array_push($reals, $sk[$i]["id"]);
-listp($sk[$i]["id"],$sk[$i]["name"],"real");
+			// print_r($sk[$i]["id"]);
+			// print_r($sk[$i]->id);
+$now=strtotime(date("Y-m-d"));
+			$df=$sk[$i]->release_date;
+			$df=strtotime($df);
+			if ($df<$now) {
+array_push($reals, $sk[$i]->id);
+listp($sk[$i]->id,$sk[$i]->name,"real");
+}
 }			
 
 	}
@@ -408,10 +465,17 @@ function genres($user,$tmdb){
 
 	return genres_list2($tmdb);
 }
+function synop($s){
+	global $type;
+
+	$inf=$GLOBALS["TMDB"]->info($type,$s);
+	$d=$inf->overview;
+	return $d;
+}
 function genres_name($value){
 	global $type;
 	$inf=$GLOBALS["TMDB"]->info_genres($type,$value);
-		$sk=findo($inf);
+		$sk=findo($inf,"name");
 	return $sk;
 }
 function cast_list($list){
@@ -457,13 +521,21 @@ foreach ($lo as $key => $value) {
 }
 return $l;
 }
-
+function tmdb_mo2($lo){
+	$l=array();
+	$mp="tmdb_id";
+foreach ($lo as $key => $value) {
+	array_push($l, array($mp=>$value));
+	
+}
+return $l;
+}
 function real_film($id){
 	// print_r($id);
 		$genres=array();
 
 	$inf=$GLOBALS["TMDB"]->people_crew("person",$id);
-	$sk=find($inf,"job","Director","id");
+	$sk=find_u($inf,"job","Director","id");
 	$sk=tmdb_mo($sk);
 	// print_r($sk);
 	// $sd=reals_list($sk);
@@ -482,7 +554,27 @@ function cast_film($id){
 
 	$sk=$GLOBALS["TMDB"]->people_cast("person",$id);
 	// print_r($GLOBALS["TMDB"]->info("person",$id)->name);
-	$sk=findo($sk[0],"id");
+	$sk=findo_u($sk[0],"id");
+	$sk=tmdb_mo($sk);
+	// print_r($sk);
+	// $sd=reals_list($sk);
+	// print_r($sd);
+	// 	$sdd=genres_list($sk);
+	// 		print_r($sdd);
+
+	// 	$sddd=cast_list($sk);
+	// 		print_r($sddd);
+return $sk;
+	// print_r($sk);
+}
+function genres_film($id){
+	// print_r($id);
+		$genres=array();
+
+	$sk=$GLOBALS["TMDB"]->info("genre",$id,"movies");
+	// print_r($GLOBALS["TMDB"]->info("person",$id)->name);
+	$sk=findo_u($sk->results,"id");
+
 	$sk=tmdb_mo($sk);
 	// print_r($sk);
 	// $sd=reals_list($sk);
@@ -502,7 +594,11 @@ function up_href($l){
 		$url="http://image.tmdb.org/t/p/w780";
 
 	foreach ($l as $key => $value) {
+		if ($value["href"]=="fail") {
+			$l[$key]["href"]="http://www.jordans.com/~/media/jordans%20redesign/no-image-found.ashx?h=275&la=en&w=275&hash=F87BC23F17E37D57E2A0B1CC6E2E3EEE312AAD5B";
+		}else{
 		$l[$key]["href"]=$url.$value["href"];
+	}
 	}
 	return $l;
 }

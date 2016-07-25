@@ -112,6 +112,7 @@ function find($list,$field,$text,$n="name"){
   }
   return $d;
 }
+
  public function info($type, $id, $method = false, $params = array()) {
     $result = array();
     if ($method) {
@@ -122,7 +123,7 @@ function find($list,$field,$text,$n="name"){
     if (!$response->error) {
       $result = $response->data;
     } else {
-      $this->error = $response->error;
+      $result = $response->error;
     }
     return $result;
   }

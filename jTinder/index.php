@@ -2,10 +2,18 @@
 session_start();
 // print_r($_SESSION["id"]);
 require "base.php";
-
+// print_r($_SESSION["id"]);
+if (!isset($_SESSION["id"])) {
+header('Location: recherche.php');
+  exit();
+}else{
+  $user=$_SESSION["id"];
 $movie=movie_pref($user);
-
-
+// print_r(count($movie));
+if (count($movie)==0) {
+    print_r("pas de suggestion");
+    
+}
 ?>
 <!DOCTYPE html>
 <html>
@@ -13,6 +21,7 @@ $movie=movie_pref($user);
     <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
 <!-- Latest compiled and minified CSS -->
 <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css" integrity="sha384-1q8mTJOASx8j1Au+a5WDVnPi2lkFfwwEAa8hDDdjZlpLegxhjVME1fgjWPGmkzs7" crossorigin="anonymous">
+<link rel="stylesheet" href="css/font-awesome/css/font-awesome.min.css">
 
 <!-- Optional theme -->
 <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap-theme.min.css" integrity="sha384-fLW2N01lMqjakBkx3l/M9EahuwpSfeNvV63J5ezn3uZzapT0u7EYsXMjQV+0En5r" crossorigin="anonymous">
@@ -35,24 +44,28 @@ $movie=movie_pref($user);
             <? $m=5; 
              foreach ($movie as $key => $value) {
                 ?>
-            <li class="pane" style="z-index:<?php echo $m ?>;" p_id="<?php echo $value['p_id'] ?>" rate='<?php echo $value["rate"] ?>' user="<?php echo $user ?>">
-                    <div class="img" style="z-index:<?php echo $m ?>;"><img width="100%" style="z-index:<?php echo $m ?>;" height="100%" src="<?php echo $value["href"]?>"/></div>
-                    <div class="tv" style="z-index:<?php echo $m ?>;" ><?php echo $value["title"]?></div><div class="tv" style="z-index:<?php echo $m ?>;"> Réal:
+            <li class="pane" tmdb_id="<?php echo $value['tmdb_id'] ?>" style="z-index:<?php echo $m ?>;" p_id="<?php echo $value['p_id'] ?>" rate='<?php echo $value["rate"] ?>' user="<?php echo $user ?>">
+                    <div class="img" url="<?php echo $value["url"]?>" style="z-index:<?php echo $m ?>;"><img id="img_img" width="100%" style="z-index:<?php echo $m ?>;" height="100%" src="<?php echo $value["href"]?>"/></div>
+                    <div class="tv" id="title_title" style="z-index:<?php echo $m ?>;" ><?php echo $value["title"]?></div><div id="real_1" class="tv" style="z-index:<?php echo $m ?>;"> Réal:
                     <?
                     
                      foreach ($value["reals"] as $key2 => $value2) {
                         ?>
-                        <span class="tv" style="z-index:<?php echo $m ?>;"><?php echo $value2 ?></span>
+                        <span class="tv" id="real_real" style="z-index:<?php echo $m ?>;"><?php echo $value2 ?></span>
                      <?}?></br>
-                            <span class="tv" style="z-index:<?php echo $m ?>;"> Note:<?php echo $value["rate"] ?></span>                     </div>
+                            <span class="tv" style="z-index:<?php echo $m ?>;"> Note:<?php echo $value["rate"] ?></span>
+                            </br>Année:
+                            <span class="tv" id="ann_ann" style="z-index:<?php echo $m ?>;"> <?php echo $value["ann"] ?></span>
+                                                 </div>
              
 
                     <div class="like" style="z-index:<?php echo $m ?>;"></div>
                     <div class="dislike" style="z-index:<?php echo $m ?>;"></div>
                     <? if ($value["video_url"] != "fail"){?>
-                    <div class="play" style="z-index:<?php echo $m ?>;" id="<?php echo $value['video_url']?>"></div>
+                    <div class="play" style="z-index:<?php echo $m ?>;" v_id="<?php echo $value['video_url']?>"></div>
 <? }?>
                     <div class="seen" style="z-index:<?php echo $m ?>;"></div>
+<i class="fa fa-info-circle" id="nfo" aria-hidden="true"></i>
 
                 </li>
             <?
@@ -69,14 +82,49 @@ $m++;
     <!-- jTinder trigger by buttons  -->
     <div class="actions">
         <a href="#" class="dislike"><i></i></a>
+        <a href="#" class="seen"><i class="fa fa-eye fa-3" aria-hidden="true"></i></a>
         <a href="#" class="like"><i></i></a>
-                <a href="#" class="seen"><i></i></a>
+
+                
 
     </div>
 
     <!-- jTinder status text  -->
     <div id="status"></div>
-    <div id="pom"></div>
+    <div id="pom"><p><?php  print_r($gl); ?></p><p>
+    <?php print_r($list_name); ?>
+    </p></div>
+    <div class="modal fade" id="modal2" tabindex="-1" role="dialog">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+        <h4 class="modal-title">Modal title</h4>
+      </div>
+      <div class="modal-body">
+      <div class="row">
+      <div class="col-lg-6">
+      <div class="play" v_id=""> </div>
+
+      <img id="img_modal"     width="100%" src=""/>
+      </div>
+            <div class="col-lg-6">
+
+     <p> title: <span id="title_modal"></span></br>
+     reals: <span id="real_modal"></span> </p>
+     genres: <span id="genre_modal"></span> </p>
+     synopsis: <span id="synop_modal"></span> </p>
+          année: <span id="ann_modal"></span> </p>
+
+     </div>
+     </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+      </div>
+    </div><!-- /.modal-content -->
+  </div><!-- /.modal-dialog -->
+</div><!-- /.modal -->
 <div class="modal fade" id="modal1" tabindex="-1" role="dialog">
   <div class="modal-dialog">
     <div class="modal-content">
@@ -128,4 +176,8 @@ $m++;
 
 </script> 
 </body>
+<?php
+
+}
+?>
 </html>
