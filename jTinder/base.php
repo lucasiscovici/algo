@@ -1,39 +1,66 @@
 <?php 
+session_start();
 //base chercher
 $type="movie";
-$user=1;
+$user=$_SESSION["id"];
+$pseudo=$_SESSION["pseudo"];
 $debug=false;
 $gl=array();
 $nb=20;
+$base_num=6;
+$base_rate=5;
+$base_min=0.4;
 $min=1.0;
+	$d = array( // critères de pref 
+		"reals",
+		"genres",
+		"cast"
+		);
+$list_name=array();
 include "config.php";
 
 
-$f=array(
-			"il était une fois en Amérique",
-			"barry lyndon",
-			"le nom des gens",
-			"interstellar",
-			"Le Parrain - 2ème partie"
-		);
-save_begin($f);
+// $f=array(
+// 			"interstellar",
+// 			"il était une fois en amérique",
+// 			"barry lyndon",
+// 			"le nom des gens",
+// 			"le parrain 2",
+// 			"inception",
+// 			"les nouveaux sauvages",
+// 			"the game"
+
+// 		);
+// save_begin($f);
+
+//renvoi un array de pref (real, genres,cast) (id->[frequence,rate])
 function getb($t){
 	global $user;
 		global $gl;
+	$tmdb=get_tmdb3($user);
 
 	foreach ($t as $key => $value) {
-		$gl[$value]=$value($user);
-arsort($gl[$value]);
+		$gl[$value]=$value($user,$tmdb);
 
 	}
 }
+
+//calcul la note par pref (frequence et rate) renvoi (id -> note)
 function getcinq($t){
 	global $gl;
-		foreach ($t as $key => $value) {
-$gl[$value]=cinq($gl[$value]);
+	foreach ($t as $key => $value) {
+		$gl[$value]=cinq($gl[$value]);
 
-// print_r($gl[$value]);
+	}
+
 }
+// tri les pref par note desc
+function getnorm($t){
+	global $gl;
+	foreach ($t as $key => $value) {
+		arsort($gl[$value]);
+		}
+
 }
 function pt_real($movie){
 	$pt=$value;
@@ -78,6 +105,8 @@ global $type;
 return $note+$pt;
 }
 $pt_film=array();
+
+//return un array d'id depuis un array d'tmdb_id
 function dod($a,$b){
 	// print_r($a);
 	// print_r($b);
@@ -87,167 +116,133 @@ foreach($a as $arr){
       $result[] = $arr;
    }
 }
-// $result=array_reverse($result);
-// print_r($result);
+
 return $result;
 }
+
+//En se basant sur les films noté par le user
 function pref($us){
-	$d = array(
-		"reals",
-		"genres",
-		"cast"
-		);
-	global $gl;
-	global $user;
+
+	global $gl; //tableau pref
+	global $base_min; //min cast note
+	global $user;  //id user
+	global $list_name; //liste pref id -> name
+	global $d;
+	getb($d); //renvoi un array de pref (real, genres,cast) (id->[frequence,rate])
+
+	getcinq($d); //calcul la note par pref (frequence et rate) renvoi (id -> note)
+	getnorm($d); // tri les pref par note desc
+
+
 	$user=$us;
-// print_r($d);
-getb($d);
-		// $inf=$GLOBALS["TMDB"]->people_crew("person",240);
-// print_r($inf);
-getcinq($d);
+	$dg=[];		
 
-// print_r($gl);
-$dg=[];		
-		$count= 0;			// print_r($gl);
+$i=get_tmdb2($user);
+	foreach ($gl["reals"] as $key => $value) { //parcours les pref REALS -> pour trouver des films
 
-	// print_r(get_tmdb2($user));
+		$dgs=real_film($key); // renvois liste d'id de film du 
+		$dgs=dod($dgs,$i); // les filtre avec les films deja proposé
 
-// foreach ($gl["reals"] as $key => $value) {
-// // 	# code...
+		foreach ($dgs as $key2 => $value2) { //parcours les films du real, calcul la note affilié
+			if (!(array_key_exists($value2["tmdb_id"], $dg))){
+					$dg[$value2["tmdb_id"]]=$value; // note real
+					$dg[$value2["tmdb_id"]]=genre_pt($value2,$dg[$value2["tmdb_id"]],$gl["genres"]); // note genre
+					$dg[$value2["tmdb_id"]]=cast_pt($value2,$dg[$value2["tmdb_id"]],$gl["cast"]); // note cast
+			}
 
-// 	$dgs=real_film($key);
-// 	// print_r("dgs ".$dgs);
-// 	$dgs=dod($dgs,get_tmdb2($user));
-// 	// print_r($dgs);
-// 	foreach ($dgs as $key2 => $value2) {
-// // if ($count <= 3) {
+		}
 
-// 	// $count++;
-// 				// print_r($value2["tmdb_id"]);
-// if (!(array_key_exists($value2["tmdb_id"], $dg))){
-// 		$dg[$value2["tmdb_id"]]=$value;
-// 					// print_r($dg);
+	}
 
-// 		$dg[$value2["tmdb_id"]]=genre_pt($value2,$dg[$value2["tmdb_id"]],$gl["genres"]);
-// 				$dg[$value2["tmdb_id"]]=cast_pt($value2,$dg[$value2["tmdb_id"]],$gl["cast"]);
-// }
-// // }else{
-// // 	break;
-// // 	}
-// }
-
-// }
-foreach ($gl["cast"] as $key => $value) {
-// 	# code...
-if ($value > 0.2){
+	foreach ($gl["cast"] as $key => $value) {
+		//parcours les pref CAST -> pour trouver des films
+		if ($value >= $base_min){
+			//on cherche les films de l'acteur uniquement si la note est > base_min
 
 
-	$dgs=cast_film($key);
-	// print_r("dgs ".$dgs);
-	$dgs=dod($dgs,get_tmdb2($user));
-	// print_r($dgs);
-	foreach ($dgs as $key2 => $value2) {
-// if ($count <= 3) {
+			$dgs=cast_film($key);// film de l'acteur
+			$dgs=dod($dgs,$i); //filtre films deja connu
 
-	// $count++;
-				// print_r($value2["tmdb_id"]);
-if (!(array_key_exists($value2["tmdb_id"], $dg))){
-		$dg[$value2["tmdb_id"]]=$value;
-					// print_r($dg);
+			foreach ($dgs as $key2 => $value2) {
 
-		$dg[$value2["tmdb_id"]]=genre_pt($value2,$dg[$value2["tmdb_id"]],$gl["genres"]);
-				// $dg[$value2["tmdb_id"]]=real_pt($value2,$dg[$value2["tmdb_id"]],$gl["reals"]);
-}
-// }else{
-// 	break;
-// 	}
-}
-}
+				if (!(array_key_exists($value2["tmdb_id"], $dg))){
 
-}
+					$dg[$value2["tmdb_id"]]=$value;
+					$dg[$value2["tmdb_id"]]=genre_pt($value2,$dg[$value2["tmdb_id"]],$gl["genres"]);// genre pt
+					
+					$dg[$value2["tmdb_id"]]=real_pt($value2,$dg[$value2["tmdb_id"]],$gl["reals"]); //real pt
+				}
 
-	asort($dg);
+			}
+		}
+
+	}
+
+	asort($dg); //tri
 	return $dg;
 }
 
+// extrait les nb premiers films
 function get_array_nb($arr,$nb){
 	$d=array();
 	$arr=array_reverse($arr, true);
-$count=0;
+	$count=0;
 	foreach ($arr as $key => $value) {
 		if ($count == $nb) return $d;
 		$d[$key]=$value;
 		$count++;
 	}
-
 	return $d;
 }
 
-function movie_pref($e){
-	global $type;
-	global $nb;
-	global $min;
-$movie=pref($e);
-$res=array();
-$count=0;
-$movie = get_array_nb($movie, $nb); 
-$movie = array_filter($movie, function($k,$v) {
-    return $v >= $min;
-}, ARRAY_FILTER_USE_BOTH); 
-	$movie=array_reverse($movie, true);
+//revoit une liste de films suggeré (id,rate,title,href,reals,genres,video_url) avec une liste de films suggerés (id=>note)
+function movie_pref($e){ 
+	global $type; //movie
+	global $nb; //nb de films suggéré max !
+	global $min; //note minimal
 
-foreach ($movie as $key => $value) {
-	// if ($count<30){
-		// $count++;
-	$tmdb=getAll("SELECT `titre` as 'title',`product_id` as 'id',`affiche` as 'href' FROM products WHERE product_id =".$key." ");	
+	$movie=pref($e); // retourne une liste de films suggerés (id=>note)
+	$res=array(); //array -> resultats
+	$movie = get_array_nb($movie, $nb); // extrait les nb premiers films
+	$movie = array_filter($movie, function($k,$v) { // filtres les films ayant une note > $min
+	    return $v >= $min;
+	}, ARRAY_FILTER_USE_BOTH); 
 
-	if (count($tmdb)==0){
-		$val=$key;
-	$tb="`products`";
-	$v="tmdb_id=".$val."";
-	$num=$GLOBALS["TMDB"]->info($type,$val);
-	$last=eraklion($tb,$v,"tmdb_id",$val,$num);
+	$movie=array_reverse($movie, true); //inverse la liste 
 
-	$sd["id"]=$key;
-	$sd["title"]=$num->title;
-	$sd["href"]=$num->poster_path;
-	$sd["reals"]=reals_name($key);
-	// print_r($sd["reals"]);
-	$sd["genres"]=genres_name($key);
-	$sd["video_url"]=video_url($key);
+	foreach ($movie as $key => $value) { //parcours la liste de films suggerés (id=>note) et retourne (id,rate,title,href,reals,genres,video_url)
 
+		$tmdb=getAll("SELECT `titre` as 'title',`product_id` as 'id',`affiche` as 'href' FROM products WHERE product_id =".$key." ");	
+
+		// si le film n'existe pas on cherche les infos sur tmdb sinon depuis la bd
+		if (count($tmdb)==0){
+			$val=$key;
+			$tb="`products`";
+			$v="tmdb_id=".$val."";
+			$num=$GLOBALS["TMDB"]->info($type,$val); //on cherche le film
+			$last=eraklion($tb,$v,"tmdb_id",$val,$num); //on eraklion le nouveau film
+
+			$sd["id"]=$key;
+			$sd["title"]=$num->title; 
+			$sd["href"]=$num->poster_path;
+			$sd["reals"]=reals_name($key); // on cherche les reals
+			$sd["genres"]=genres_name($key); // on cherche les genres
+			$sd["video_url"]=video_url($key); // on cherche le lien de la video
 			$sd["rate"]=$value;
 
-		
+			
 
-}else{
-	$sd=$tmdb;
-	$sd["rate"]=$value;
-$sd["reals"]=reals_name($tmdb["id"]);
-$sd["genres"]=genres_name($tmdb["id"]);
-	$sd["video_url"]=video_url($key);
+		}else{
+			$sd=$tmdb;
+			$sd["rate"]=$value;
+			$sd["reals"]=reals_name($tmdb["id"]);
+			$sd["genres"]=genres_name($tmdb["id"]);
+			$sd["video_url"]=video_url($key);
+		}
 
+		$res[]=$sd;
 
+	}
+	$res=up_href($res); //rewrite url img 
+	return $res;
 }
-	$res[]=$sd;
-// }else{
-// 	break;
-// }
-}
-$res=up_href($res);
-
-return $res;
-}
-$timestart=microtime(true);
-
-// $movie=movie_pref(1);
-
-// print_r($movie);
-$timeend=microtime(true);
-$time=$timeend-$timestart;
- 
-//Afficher le temps d'éxecution
-$page_load_time = number_format($time, 3);
-// echo "Debut du script: ".date("H:i:s", $timestart);
-// echo "<br>Fin du script: ".date("H:i:s", $timeend);
-// echo "<br>Script execute en " . $page_load_time . " sec";

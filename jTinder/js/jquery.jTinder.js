@@ -12,8 +12,8 @@
 		defaults = {
 			onDislike: null,
 			onLike: null,
-						onSeen: null,
-
+			onSeen: null,
+			onSwipe: null,
 			animationRevertSpeed: 200,
 			animationSpeed: 400,
 			threshold: 1,
@@ -46,6 +46,9 @@
 
 			container = $(">ul", element);
 			panes = $(">ul>li", element);
+			nb=panes.length;
+			nb_r=0;
+			elo=element;
 			pane_width = container.width();
 			pane_height=container.height();
 			pane_count = panes.length;
@@ -73,6 +76,8 @@
 				if($that.settings.onDislike) {
 
 					$that.settings.onDislike(panes.eq(current_pane));
+								$that.settings.onSwipe(panes.eq(current_pane),nb,nb-nb_r);
+								nb_r+=1;
 				}
 				$that.next();
 			});
@@ -85,6 +90,8 @@
 				if($that.settings.onLike) {
 
 					$that.settings.onLike(panes.eq(current_pane));
+								$that.settings.onSwipe(panes.eq(current_pane),nb,nb-nb_r);
+								nb_r+=1;
 				}
 				$that.next();
 			});
@@ -96,11 +103,15 @@
 				if($that.settings.onSeen) {
 
 					$that.settings.onSeen(panes.eq(current_pane));
+								$that.settings.onSwipe(panes.eq(current_pane),nb,nb-nb_r);
+								nb_r+=1;
 				}
 				$that.next();
 			});
 		},
-
+		reload:function(b){
+			this.init(elo);
+		},
 		handler: function (ev) {
 			ev.preventDefault();
 
@@ -179,6 +190,8 @@ if (posY>=50){
 	panes.eq(current_pane).animate({"transform": "translateY(" + (posY + pane_width + 100) + "px) "}, $that.settings.animationSpeed, function () {
 								if($that.settings.onSeen) {
 									$that.settings.onSeen(panes.eq(current_pane));
+													$that.settings.onSwipe(panes.eq(current_pane),nb,nb-nb_r);
+								nb_r+=1;
 								}
 								$that.next();
 							});
@@ -187,6 +200,8 @@ if (posY>=50){
 							panes.eq(current_pane).animate({"transform": "translate(" + (pane_width) + "px," + (posY + pane_width) + "px) rotate(60deg)"}, $that.settings.animationSpeed, function () {
 								if($that.settings.onLike) {
 									$that.settings.onLike(panes.eq(current_pane));
+												$that.settings.onSwipe(panes.eq(current_pane),nb,nb-nb_r);
+								nb_r+=1;
 								}
 								$that.next();
 							});
@@ -194,6 +209,8 @@ if (posY>=50){
 							panes.eq(current_pane).animate({"transform": "translate(-" + (pane_width) + "px," + (posY + pane_width) + "px) rotate(-60deg)"}, $that.settings.animationSpeed, function () {
 								if($that.settings.onDislike) {
 									$that.settings.onDislike(panes.eq(current_pane));
+													$that.settings.onSwipe(panes.eq(current_pane),nb,nb-nb_r);
+								nb_r+=1;
 								}
 								$that.next();
 							});

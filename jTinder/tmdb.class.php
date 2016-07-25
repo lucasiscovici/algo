@@ -147,11 +147,16 @@ function find($list,$field,$text,$n="name"){
       return $GLOBALS["TMDB"]->info($type,$value,"movie_credits")->cast;
 
  }
-    public function info_cast($type,$value){
+    public function info_cast($type,$value=0,$info=0){
        if (Type($value) == 'array'){
       $value=$value["tmdb_id"];
     }
+    if ($info==0 && $value != -1) {
       return $GLOBALS["TMDB"]->info($type,$value,"credits")->cast;
+    }else{
+      return $type->cast;
+
+    }
 
  }
  public function info_real($type,$value){

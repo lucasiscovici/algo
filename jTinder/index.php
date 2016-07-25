@@ -1,7 +1,6 @@
 <?php
-$user=1;
-$type="movie";
-
+session_start();
+// print_r($_SESSION["id"]);
 require "base.php";
 
 $movie=movie_pref($user);
