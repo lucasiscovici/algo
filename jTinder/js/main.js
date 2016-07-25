@@ -11,12 +11,14 @@ console.log(nb_rest);
     onDislike: function (item) {
 	    // set the status text
         $('#status').html('Dislike image ' + (item.index()+1));
+       
         $.ajax( {
 		method:"POST",
           url: "swipe.php",
           data: {
           	role: 3,
-            id: item.attr("tmdb_id")
+            id: item.attr("p_id")
+     
           },
           success: function( data ) {
           	
@@ -34,12 +36,16 @@ console.log("ton id est: "+data);
     onLike: function (item) {
 	    // set the status text
         $('#status').html('Like image ' + (item.index()+1));
+        title=item.attr("title");
+                img=item.attr("img");
+
         $.ajax( {
 		method:"POST",
           url: "swipe.php",
           data: {
           	role: 2,
-            id: item.attr(tmdb_id)
+            id: item.attr("p_id")
+      
           },
           success: function( data ) {
           	
@@ -56,7 +62,7 @@ console.log("ton id est: "+data);
 	    // set the status text
         $('#status').html('Seen image ' + (item.index()+1));
         $("#modal1").modal("show");
-        $("#modal1").attr("tmdb_id",item.attr("tmdb_id"));
+        $("#modal1").attr("p_id",item.attr("p_id"));
         $("#modal1").attr("user",item.attr("user"));
 
 
@@ -76,7 +82,7 @@ src="https://www.youtube.com/embed/"+id;
 window.open(src);
 });
 $(".sv").click(function(){
-id=$("#modal1").attr("tmdb_id");
+id=$("#modal1").attr("p_id");
 user=$("#modal1").attr("user");
 rate=$("#rateit5").rateit("value");
 $.ajax( {
@@ -86,9 +92,9 @@ $.ajax( {
           	role: 1,
             id: id,
             note: rate
-          },
+     
           success: function( data ) {
-          	
+          	$("#modal1").modal("hide");
 if (data==-1) {
 	console.log("pb swipe 1");
 }else{

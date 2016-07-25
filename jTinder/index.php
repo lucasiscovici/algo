@@ -35,7 +35,7 @@ $movie=movie_pref($user);
             <? $m=5; 
              foreach ($movie as $key => $value) {
                 ?>
-            <li class="pane" style="z-index:<?php echo $m ?>;" tmdb_id="<?php echo $value['id'] ?>" rate='<?php echo $value["rate"] ?>' user="<?php echo $user ?>">
+            <li class="pane" style="z-index:<?php echo $m ?>;" p_id="<?php echo $value['p_id'] ?>" rate='<?php echo $value["rate"] ?>' user="<?php echo $user ?>">
                     <div class="img" style="z-index:<?php echo $m ?>;"><img width="100%" style="z-index:<?php echo $m ?>;" height="100%" src="<?php echo $value["href"]?>"/></div>
                     <div class="tv" style="z-index:<?php echo $m ?>;" ><?php echo $value["title"]?></div><div class="tv" style="z-index:<?php echo $m ?>;"> Réal:
                     <?

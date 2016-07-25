@@ -4,17 +4,17 @@ if(isset($_POST["role"])){
 	$id=$_POST["id"];
 	switch ($_POST["role"]) {
 		case 1:
-			save($id,$note);
+					$note=$_POST["note"];
+
+			$s=save3($id,$note);
 			echo $id;
 			break;
 		case 2:
-			$note=$_POST["note"];
-			save($id,$note,2);
+			save3($id,-1,2);
 			echo $id;
 			break;
 		case 3:
-			$note=$_POST["note"];
-			save($id,$note,3);
+			save3($id,-1,3);
 			echo $id;
 			break;
 		default:

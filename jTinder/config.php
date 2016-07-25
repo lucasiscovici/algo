@@ -95,16 +95,39 @@ $sqls=$sqls." WHERE ".$v."";
 	}
 	return $last;
 }
-function save($num,$note=5.0,$nu=1){
+function save($num,$note=5.0,$nu=1,$img="",$title=""){
 	global $user;
-	$val=$GLOBALS["DB"]->escape($num->id);
+	$val=(Type($num)=='number')?$num:$GLOBALS["DB"]->escape($num->id);
 	$tb="`products`";
 	$v="tmdb_id=".$val."";
-	$last=eraklion($tb,$GLOBALS["DB"]->escape($v),"tmdb_id",$val,$num);
+	if (Type($num)=='number'){
+		$nump=array("title"=>$title,"img"=>$img);
+	}
+	$last=(Type($num)=='number')?eraklion2($tb,$GLOBALS["DB"]->escape($v),"tmdb_id",$val,$nump):eraklion($tb,$GLOBALS["DB"]->escape($v),"tmdb_id",$val,$num);
 
 	try {
 $sql2="INSERT INTO `usersproducts`(user_id,product_id,type) VALUES (".$user.",".$last.", {$nu})";
+echo $sql2;
+			res($sql2);
+	$ls=last();
+		try {
 
+		$sql2="UPDATE`usersproducts`SET `note`= {$note} WHERE `id`={$ls}";
+
+		res($sql2);
+		}catch (Exception $e) {
+
+}
+}catch (Exception $e) {
+
+}
+}
+function save3($num,$note=5.0,$nu=1){
+	global $user;
+	$last=$num;
+	try {
+$sql2="INSERT INTO `usersproducts`(user_id,product_id,type) VALUES (".$user.",".$last.", {$nu})";
+echo $sql2;
 			res($sql2);
 	$ls=last();
 		try {

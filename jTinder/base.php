@@ -212,7 +212,7 @@ function movie_pref($e){
 
 	foreach ($movie as $key => $value) { //parcours la liste de films suggerés (id=>note) et retourne (id,rate,title,href,reals,genres,video_url)
 
-		$tmdb=getAll("SELECT `titre` as 'title',`product_id` as 'id',`affiche` as 'href' FROM products WHERE product_id =".$key." ");	
+		$tmdb=getAll("SELECT `titre` as 'title',`product_id` as 'p_id',`affiche` as 'href' FROM products WHERE tmdb_id =".$key." ");	
 
 		// si le film n'existe pas on cherche les infos sur tmdb sinon depuis la bd
 		if (count($tmdb)==0){
@@ -223,6 +223,8 @@ function movie_pref($e){
 			$last=eraklion($tb,$v,"tmdb_id",$val,$num); //on eraklion le nouveau film
 
 			$sd["id"]=$key;
+						$sd["p_id"]=$last;
+
 			$sd["title"]=$num->title; 
 			$sd["href"]=$num->poster_path;
 			$sd["reals"]=reals_name($key); // on cherche les reals
@@ -235,8 +237,8 @@ function movie_pref($e){
 		}else{
 			$sd=$tmdb;
 			$sd["rate"]=$value;
-			$sd["reals"]=reals_name($tmdb["id"]);
-			$sd["genres"]=genres_name($tmdb["id"]);
+			$sd["reals"]=reals_name($key);
+			$sd["genres"]=genres_name($key);
 			$sd["video_url"]=video_url($key);
 		}
 
